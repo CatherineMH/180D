@@ -3,6 +3,7 @@
 #include "LSM9DS0.h"
 
 #define MILLION 1000000.0;
+#define BUFF_SIZE 1024
 
 float calculate_magnitude(data_t data)
 {
@@ -18,8 +19,8 @@ int main(){
 	data_t ad, gd, md;
 	data_t Go;
 
-	a_scale = A_SCALE_8G; //make sure to catch all features in stride!
-	g_scale = G_SCALE_500DPS;
+	a_scale = A_SCALE_16G; //make sure to catch all features in stride!
+	g_scale = G_SCALE_2000DPS;
 	m_scale = M_SCALE_2GS;
 
 	accel = accel_init();
@@ -39,7 +40,11 @@ set_mag_ODR(mag, M_ODR_125);
 
 	//Go = calc_gyro_offset(gyro, g_res); //gyroscope offset
 
-    char output_file[] = "walk_data.csv";
+	//get output file name from user:
+    char* output_file = (char *) malloc(sizeof(char) * BUFF_SIZE);
+	printf("Please enter file name: ");
+	scanf("%s", output_file);
+	printf("\n");
     FILE *fp = fopen(output_file, "ab+");
 
     printf("Attempting to write to file \'%s\'.\n", output_file);
