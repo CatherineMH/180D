@@ -1,5 +1,5 @@
 /*
- * For extracting features from an input file
+ * Contains methods for extracting features from an input .csv file
  * */
 
 /* for file and terminal I/O */
@@ -22,6 +22,7 @@
 
 #include "ex_find_maxima_rig_zgyro.h" //find_index_maxima_gz
 #include "process_file.h"
+#include "neural_nets.h"
 
 #define BUFF_SIZE 1024
 
@@ -236,11 +237,11 @@ void calculate_correlation_coefficient(float *arr_x, float *arr_y, int n_P, int*
 
 }
 
-void process_file(const char *ifile_name)
+//not_training: 0 - input file is not for training; 1 - input file for training
+void process_file(const char *ifile_name, int not_training)
 {
     /* Generic variables */
     int i, fd, rv;
-    //int no_input_features = 43; //number of input features being fed to neural network
 
     /*array containing the input features corresponding to each stride in file*/
     //float* input = malloc(sizeof(float) * no_input_features);
@@ -592,14 +593,25 @@ void process_file(const char *ifile_name)
      * motion and speed classification
      * */
     fclose(fp);
-    global_neural_network(test_file);
+
+    //check whether the input file is the training file so that we avoid
+    //performing actions specific to the real-time system:
+
+    if(not_training)
+        global_neural_network(test_file);
 
     char delete_command[1024];
-    //clear buffer
-    memset(delete_command, 0 , 1024);
 
-    sprintf(delete_command, "rm %s", test_file);
-    system(delete_command);
+    if(not_training) {
+        //printf("Not training! \n");
+
+        //clear buffer
+        memset(delete_command, 0 , 1024);
+
+        sprintf(delete_command, "rm %s", test_file);
+
+        system(delete_command);
+    }
 
     free(t);
     free(ta);

@@ -19,6 +19,6 @@ void calculate_kurtosis(float *arr, int n_P, int* index_period_gz, float* arr_me
 
 void calculate_correlation_coefficient(float *arr_x, float *arr_y, int n_P, int* index_period_gz, float* correlation);
 
-void process_file(const char *ifile_name);
+void process_file(const char *ifile_name, int not_training);
 
 #endif //PROCESS_FILE_H
