@@ -4,7 +4,13 @@
 //
 //gcc -o training_auto_new-2 training_auto_new-2.c ex_find_maxima_rig_zgyro.c Moving_Avg_Filter.c process_file.c neural_nets.c -lm -lmraa -lfann
 //
-/*For testing the data real-time*/
+/*
+ *
+ * Automatically generates a set of training files for real time system
+ * from datasets collected by users present in database
+ *
+ *
+ * */
 
 /* for file and terminal I/O */
 #include <stdio.h>
@@ -29,6 +35,7 @@
 #define BUFF_SIZE 1024
 #define ACTIVITY_COUNT 6
 #define SPEED_COUNT 3
+#define NO_INPUTS 43 //number of input neurons (number of stride features extracted)
 
 sig_atomic_t volatile run_flag = 1;
 
@@ -38,7 +45,17 @@ void do_when_interrupted(int sig)
         run_flag = 0;
 }
 
-void extract_features(const char *ifile_name, int activity_id, const int ACTIVITY_COUNT_USER, char ANN[], int is_turn /*NB1*/)
+/*
+ * extract features:
+ * INPUTS:
+ * ifile_name = raw data file
+ * activity_id =  0 - Walking, 1 - Upstairs, 2 - Downstairs, 3 - Jump, 4 - Left Turn, 5 - Right Turn
+ * ACTIVITY_COUNT_USER = total number of different activities
+ * ANN = the name of the ANN this file will train
+ * is_turn: 1 = turn dataset, 0 = not turn dataset
+ *
+ * */
+int extract_features(const char *ifile_name, int activity_id, const int ACTIVITY_COUNT_USER, char ANN[], int is_turn /*NB1*/)
 {
 	/* Generic variables */
 	int i, j, idx, fd, rv;
@@ -52,10 +69,8 @@ void extract_features(const char *ifile_name, int activity_id, const int ACTIVIT
     int N_SAMPLES;
 
     process_file(ifile_name, 0, is_turn);
+
     //open file written to by process_file, which contains extracted features:
-    printf("ifile_name: %s\n", ifile_name);
-
-
     char ff_name[100];   // array to hold the result.
     char *feature_file = "ann1_file.txt";
     strcpy(ff_name,ifile_name); // copy string one into the result.
@@ -71,12 +86,7 @@ void extract_features(const char *ifile_name, int activity_id, const int ACTIVIT
         exit(EXIT_FAILURE);
     }
 
-    //creating a training file with 43 fetures
-    //char* train_file = calloc(1, sizeof(*train_file));
-    //memset(train_file, 0, BUFF_SIZE);
-    //Store training files in the given file
-    //snprintf(train_file, sizeof(*train_file), "/home/root/database/%s.txt", ANN);
-
+    //creating a training file with NO_FEATURES fetures
     char train_file[100];   // array to hold the result.
     char out_file[5] = ".txt";
     strcpy(train_file, "/home/root/database/");
@@ -152,7 +162,98 @@ void extract_features(const char *ifile_name, int activity_id, const int ACTIVIT
 	}
 	fprintf(desc_file, "%d %s %d\n", activity_id, ifile_name, N_SAMPLES);
 	fclose(desc_file);
+
+    //remove junk files created by process_file:
+    system("rm /home/root/database/*ann1_file.txt");
+
+    char delete_command[1024];
+    //clear buffer
+    memset(delete_command, 0 , 1024);
+
+    return N_SAMPLES;
 }
+
+/*
+ * add_header: adds a header in the format TOTAL_STRIDES NO_INPUT_NEURONS NO_OUTPUT NEURONS to training file
+ * */
+void add_header(char ANN[], int total_n_samples, int no_inputs, int no_outputs)
+{
+    /*
+     * fp = file to write to, fr = file to read from
+     * */
+    FILE* fp, *fr;
+
+    size_t len;
+    char* line = NULL;
+
+    //construct the training file name:
+    char train_file[100];   // array to hold the result.
+    char out_file[5] = ".txt";
+    strcpy(train_file, "/home/root/database/");
+    strcat(train_file, ANN);
+    strcat(train_file, out_file); // copy string one into the result.
+
+    //construct and execute system command to copy the training file to a temporary file:
+    char command[200]; //holds the system call
+    strcpy(command, "cp ");
+    strcat(command, train_file);
+    strcat(command, " /home/root/database/temp.txt");
+    printf("command: %s \n", command);
+    system(command);
+
+    //attempt to write to training file:
+    fp = fopen(train_file, "w");
+    if (fp == NULL)
+    {
+        fprintf(stderr,
+                "Failed to write to file \'%s\'.\n",
+                train_file
+        );
+        exit(EXIT_FAILURE);
+    }
+
+    /*
+     * WRITE HEADER TO TRAINING FILE:
+     *
+     * print no. strides (N_SAMPLES), no. input neurons, and no. output neurons (ACTIVITY_COUNT_USER)
+     * to header of training file:
+     *
+     * */
+    fprintf(fp, "%d %d %d\n", total_n_samples, no_inputs, no_outputs);
+    fclose(fp);
+
+    fr = fopen("/home/root/database/temp.txt", "r");
+    if (fr == NULL)
+    {
+        fprintf(stderr,
+                "Failed to read file \'%s\'.\n",
+                "/home/root/database/temp.txt"
+        );
+        exit(EXIT_FAILURE);
+    }
+//
+    fp = fopen(train_file, "a");
+    if (fp == NULL)
+    {
+        fprintf(stderr,
+                "Failed to append to file \'%s\'.\n",
+                train_file
+        );
+        exit(EXIT_FAILURE);
+    }
+//
+    //restore data from temp file to training file:
+    while ((getline(&line, &len, fr)) != -1) {
+        fprintf(fp, line);
+    }
+
+    fclose(fr);
+    fclose(fp);
+
+    return;
+}
+
+
 
 int main()
 {
@@ -160,6 +261,14 @@ int main()
   //  make_training_file(SPEED_COUNT);
    //Variables
     FILE *fp, *fn;
+
+    //create variables to keep track of total # of strides in each training file:
+    int ANN_1_COUNT = 0;
+    int ANN_2_1_COUNT = 0;
+    int ANN_2_2_COUNT = 0;
+    int ANN_2_3_COUNT = 0;
+    int ANN_2_4_COUNT = 0;
+
     char *ifile_name;
     ifile_name = malloc(sizeof(char) * 1024);
     char *line = NULL;
@@ -220,39 +329,39 @@ int main()
             case 1:
                 //upstairs speeds
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sus");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sum");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "suf");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 break;
             case 2:
                 //downstairs speeds
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sds");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sdm");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sdf");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 break;
             case 3:
                 //jump heights
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "js");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "jm");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "jh");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 0);// make training files
                 break;
             case 4:
                 //left turn
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "tl");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 1);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 1);// make training files
                 break;
             case 5:
                 //right turn
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "tr");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 1);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, "ANN_1", 1);// make training files
                 break;
 
         }
@@ -274,38 +383,38 @@ int main()
             case 0 :
                 //walking speeds
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "ws");
-                extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_1", 0);// make training files
+                ANN_2_1_COUNT += extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "wm");
-                extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_1", 0);// make training files
+                ANN_2_1_COUNT += extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_1", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "wf");
-                extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_1", 0);// make training files
+                ANN_2_1_COUNT += extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_1", 0);// make training files
                 break;
             case 1:
                 //upstairs speeds
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sus");
-                extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_2", 0);// make training files
+                ANN_2_2_COUNT += extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_2", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sum");
-                extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_2", 0);// make training files
+                ANN_2_2_COUNT += extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_2", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "suf");
-                extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_2", 0);// make training files
+                ANN_2_2_COUNT += extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_2", 0);// make training files
                 break;
             case 2:
                 //downstairs speeds
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sds");
-                extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_3", 0);// make training files
+                ANN_2_3_COUNT += extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_3", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sdm");
-                extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_3", 0);// make training files
+                ANN_2_3_COUNT += extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_3", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "sdf");
-                extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_3", 0);// make training files
+                ANN_2_3_COUNT += extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_3", 0);// make training files
                 break;
             case 3:
                 //jump heights
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "js");
-                extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_4", 0);// make training files
+                ANN_2_4_COUNT += extract_features(ifile_name, 0, SPEED_COUNT, "ANN_2_4", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "jm");
-                extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_4", 0);// make training files
+                ANN_2_4_COUNT += extract_features(ifile_name, 1, SPEED_COUNT, "ANN_2_4", 0);// make training files
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "jh");
-                extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_4", 0);// make training files
+                ANN_2_4_COUNT += extract_features(ifile_name, 2, SPEED_COUNT, "ANN_2_4", 0);// make training files
                 break;
 
         }
@@ -320,5 +429,23 @@ int main()
     //process all files
     //create a single training file
     //create a .txt description file with activity, file name, number of strides
+    printf("---------------NO. STRIDES---------------\n");
+    printf("ANN_1: %d\n", ANN_1_COUNT);
+    printf("ANN_2_1: %d \n", ANN_2_1_COUNT);
+    printf("ANN_2_2: %d \n", ANN_2_2_COUNT);
+    printf("ANN_2_3: %d \n", ANN_2_3_COUNT);
+    printf("ANN_2_4: %d \n", ANN_2_4_COUNT);
+
+
+    /*
+     * ADD HEADERS TO ALL TRAINING FILES:
+     *
+     * */
+    add_header("ANN_1", ANN_1_COUNT, NO_INPUTS, ACTIVITY_COUNT);
+    add_header("ANN_2_1", ANN_2_1_COUNT, NO_INPUTS, ACTIVITY_COUNT);
+    add_header("ANN_2_2", ANN_2_2_COUNT, NO_INPUTS, ACTIVITY_COUNT);
+    add_header("ANN_2_3", ANN_2_3_COUNT, NO_INPUTS, ACTIVITY_COUNT);
+    add_header("ANN_2_4", ANN_2_4_COUNT, NO_INPUTS, ACTIVITY_COUNT);
+
     return EXIT_SUCCESS;
 }
