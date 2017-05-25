@@ -238,7 +238,7 @@ void calculate_correlation_coefficient(float *arr_x, float *arr_y, int n_P, int*
 }
 
 //not_training: 0 - input file is not for training; 1 - input file for training
-void process_file(const char *ifile_name, int not_training)
+void process_file(const char *ifile_name, int not_training, int is_turn)
 {
     /* Generic variables */
     int i, fd, rv;
@@ -310,13 +310,20 @@ void process_file(const char *ifile_name, int not_training)
     if(N_SAMPLES < 2)
         exit(EXIT_FAILURE); //if there is no meaningful data in file, exit
     int limit = N_SAMPLES - 2;
+
+    int temp; //for storing numbers in 9th column of turn data
     while ((read = getline(&line, &len, fp)) != -1 && i < limit)
     {
         /* parse the data */
-        rv = sscanf(line, "%lf,%lf,%f,%f,%f,%f,%f,%f\n", &t[i], &ta[i],
-                    &x[i], &y[i], &z[i], &gx[i], &gy[i], &gz[i]);
+        if (is_turn) {
+            rv = sscanf(line, "%lf,%lf,%f,%f,%f,%f,%f,%f,%d\n", &t[i], &ta[i],
+                        &x[i], &y[i], &z[i], &gx[i], &gy[i], &gz[i], &temp);
+            printf("m! %lf,%lf,%f,%f,%f,%f,%f,%f\n", t[i], ta[i], x[i], y[i], z[i], gx[i], gy[i], gz[i]);
+        } else
+            rv = sscanf(line, "%lf,%lf,%f,%f,%f,%f,%f,%f\n", &t[i], &ta[i],
+                        &x[i], &y[i], &z[i], &gx[i], &gy[i], &gz[i]);
 
-        if (rv != 8)
+        if (0) //rv != 8
         {
             fprintf(stderr,
                     "%s %d \'%s\'. %s.\n",
@@ -332,27 +339,9 @@ void process_file(const char *ifile_name, int not_training)
     //close and remove the file once it is processed
     fclose(fp);
 
-    /* allocate a signal array for lacal_max_min function that stores 1 for positive slope and 0 for negative slope
-    bool binary_sig[N_SAMPLES]; */
     // allocate array of indexes of peaks and troughs in gz
     P_i_gz = (int *) malloc(sizeof(int) * N_SAMPLES);
     //printf("N_SAMPLES: %d", N_SAMPLES);
-    // T_i_gz = (int *) malloc(sizeof(int) * N_SAMPLES);
-    /* step4 find number(n_max_gz, n_T_gz) and indexes(P_i_gz, T_i_gz) of peaks and throughs in AS
-    local_max_min(
-                  gz,
-                  AV,
-                  N_SAMPLES,
-                  P_i_gz, T_i_gz,
-                  &n_max_gz, &n_T_gz,
-                  binary_sig);
-
-
-
-    */
-    //Catherine's code for stride detection
-
-    //printf("Going into function find_index_maxima_gz\n");
 
     float* copy_gz = (float *) malloc(sizeof(float) * N_SAMPLES);
     float* junk_t = (float *) malloc(sizeof(float) * N_SAMPLES);
@@ -551,7 +540,7 @@ void process_file(const char *ifile_name, int not_training)
 
     snprintf(test_file, BUFF_SIZE, result);
     //snprintf(test_file, BUFF_SIZE, "Katya_test_file_%ld.txt", time(NULL));
-
+    printf("PROCESS_FILE IS WRITING TO %s\n", test_file);
     fp = fopen(test_file, "w");
     if (fp == NULL)
     {
