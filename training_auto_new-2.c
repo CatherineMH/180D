@@ -173,7 +173,7 @@ int extract_features(const char *ifile_name, int activity_id, const int ACTIVITY
     //clear buffer
     memset(delete_command, 0 , 1024);
 
-    return N_SAMPLES;
+    return N_SAMPLES-1;
 }
 
 /*
@@ -321,15 +321,15 @@ int main()
 		printf("step1\n");
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "ws");
 		printf("step2\n");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, NAME, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, NAME, "ANN_1", 0);// make training files
 		printf("step3\n");
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "wm");
 		printf("step4\n");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, NAME, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, NAME, "ANN_1", 0);// make training files
 		printf("step5\n");
                 snprintf(ifile_name, BUFF_SIZE, "/home/root/database/%s_%s.csv", NAME, "wf");
 		printf("step6\n");
-                extract_features(ifile_name, activity_number, ACTIVITY_COUNT, NAME, "ANN_1", 0);// make training files
+                ANN_1_COUNT += extract_features(ifile_name, activity_number, ACTIVITY_COUNT, NAME, "ANN_1", 0);// make training files
                 break;
             case 1:
                 //upstairs speeds
@@ -445,11 +445,12 @@ int main()
  * ADD HEADERS TO ALL TRAINING FILES:
  *
  * */
+
     add_header( NAME,"ANN_1", ANN_1_COUNT, NO_INPUTS, ACTIVITY_COUNT);
-    add_header( NAME,"ANN_2_1", ANN_2_1_COUNT, NO_INPUTS, ACTIVITY_COUNT);
-    add_header( NAME,"ANN_2_2", ANN_2_2_COUNT, NO_INPUTS, ACTIVITY_COUNT);
-    add_header( NAME,"ANN_2_3", ANN_2_3_COUNT, NO_INPUTS, ACTIVITY_COUNT);
-    add_header( NAME,"ANN_2_4", ANN_2_4_COUNT, NO_INPUTS, ACTIVITY_COUNT);
+    add_header( NAME,"ANN_2_1", ANN_2_1_COUNT, NO_INPUTS, SPEED_COUNT);
+    add_header( NAME,"ANN_2_2", ANN_2_2_COUNT, NO_INPUTS, SPEED_COUNT);
+    add_header( NAME,"ANN_2_3", ANN_2_3_COUNT, NO_INPUTS, SPEED_COUNT);
+    add_header( NAME,"ANN_2_4", ANN_2_4_COUNT, NO_INPUTS, SPEED_COUNT);
 
     return EXIT_SUCCESS;
 }
