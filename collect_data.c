@@ -1,3 +1,4 @@
+//gcc -o collect_data collect_data.c LSM9DS0.c -lmraa -lm
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

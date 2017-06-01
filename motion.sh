@@ -4,9 +4,6 @@
 #echo ">>>>COMPILING<<<<"
 make clean
 make
-
-echo " >>>>COMPILING extract_real_time<<<<"
-gcc -Wall -o extract_real_time extract_real_time.c ex_find_maxima_rig_zgyro.c process_file.c neural_nets.c Moving_Avg_Filter.c -lm -lmraa -lfann
 #
 #echo ""
 echo ">>>>EXECUTING collect_data <<<<"
@@ -18,4 +15,3 @@ echo ">>>>EXECUTING extract_real_time <<<<"
 EXTRACT_ID=$!
 read -p "Press any key to kill producer/consumer... " -n1 -s
 kill $COLLECT_ID $EXTRACT_ID
-rm data_149*.csv

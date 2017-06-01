@@ -45,15 +45,19 @@
  * ann_1: walking speeds
  * 1 = slow pace, 2 = medium pace, 3 = fast pace
  * */
-int ann_1(float* input)
+int ann_1(float* input, const char user_name[])
 {
-    int i, motion;
+    int i, speed,rv, motion;
     float max;
     fann_type *calc_out;
     struct fann *ann;
 
-    //size_t len = 0;
-    ann = fann_create_from_file("ANN_1.net");
+    size_t len = 0;
+    char net_path[300];
+    strcpy(net_path, "/home/root/database/");
+    strcat(net_path, user_name);
+    strcat(net_path, "/RESULT_ANN_2_1.net");
+    ann = fann_create_from_file(net_path);
 
     calc_out = fann_run(ann, input);
     max = -100;
@@ -91,15 +95,19 @@ int ann_1(float* input)
  * ann_2: upstairs speeds
  * 1 = slow pace, 2 = medium pace, 3 = fast pace
  * */
-int ann_2(float* input)
+int ann_2(float* input, const char user_name[])
 {
-    int i, motion;
+    int i, speed,rv, motion;
     float max;
     fann_type *calc_out;
     struct fann *ann;
 
-    //size_t len = 0;
-    ann = fann_create_from_file("ANN_2.net");
+    size_t len = 0;
+    char net_path[300];
+    strcpy(net_path, "/home/root/database/");
+    strcat(net_path, user_name);
+    strcat(net_path, "/RESULT_ANN_2_2.net");
+    ann = fann_create_from_file(net_path);
 
     calc_out = fann_run(ann, input);
     max = -100;
@@ -136,15 +144,19 @@ int ann_2(float* input)
  * ann_3: downstairs speeds
  * 1 = slow pace, 2 = medium pace, 3 = fast pace
  * */
-int ann_3(float* input)
+int ann_3(float* input, const char user_name[])
 {
-    int i,motion;
+    int i, speed,rv, motion;
     float max;
     fann_type *calc_out;
     struct fann *ann;
 
-    //size_t len = 0;
-    ann = fann_create_from_file("ANN_3.net");
+    size_t len = 0;
+    char net_path[300];
+    strcpy(net_path, "/home/root/database/");
+    strcat(net_path, user_name);
+    strcat(net_path, "/RESULT_ANN_2_3.net");
+    ann = fann_create_from_file(net_path);
 
     calc_out = fann_run(ann, input);
     max = -100;
@@ -178,15 +190,19 @@ int ann_3(float* input)
  * ann_4: jump heights
  * 1 = short jump, 2 = medium jump, 3 = high jump
  * */
-int ann_4(float* input)
+int ann_4(float* input, const char user_name[])
 {
-    int i, motion;
+    int i, speed,rv, motion;
     float max;
     fann_type *calc_out;
     struct fann *ann;
 
-    //size_t len = 0;
-    ann = fann_create_from_file("ANN_4.net");
+    size_t len = 0;
+    char net_path[300];
+    strcpy(net_path, "/home/root/database/");
+    strcat(net_path, user_name);
+    strcat(net_path, "/RESULT_ANN_2_4.net");
+    ann = fann_create_from_file(net_path);
 
     calc_out = fann_run(ann, input);
     max = -100;
@@ -216,12 +232,12 @@ int ann_4(float* input)
     return -1;
 }
 
-int global_neural_network(const char* ifile_name)
+int global_neural_network(const char* ifile_name, const char user_name[]) //changed
 {
-    int i, activity_type,fd;
+    int i, activity_type,rv,fd;
     float max;
     fann_type *calc_out;
-    fann_type input[NO_FEATURES]; //43
+    fann_type input[43]; //43
     struct fann *ann;
 
     FILE *fp;
@@ -244,13 +260,18 @@ int global_neural_network(const char* ifile_name)
     fd = fileno(fp);
     flock(fd, LOCK_EX);
     ifile_name = (char *) malloc(sizeof(char) * BUFF_SIZE);
+    char net_path[300];
+    strcpy(net_path, "/home/root/database/");
+    strcat(net_path, user_name);
+    strcat(net_path, "/RESULT_ANN_1.net");
+    ann = fann_create_from_file(net_path);
 
-    ann = fann_create_from_file("RESULT_ANN1.net");
+    //double a_inputs[43];
 
     while ((read = getline(&line, &len, fp)) != -1)
     {
         max = -100;
-        sscanf(line, "%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f\n", &input[0], &input[1], &input[2], &input[3], &input[4], &input[5], &input[6], &input[7], &input[8], &input[9], &input[10], &input[11], &input[12], &input[13], &input[14], &input[15], &input[16], &input[17], &input[18], &input[19], &input[20], &input[21], &input[22], &input[23], &input[24], &input[25], &input[26], &input[27], &input[28], &input[29], &input[30], &input[31], &input[32], &input[33], &input[34], &input[35], &input[36], &input[37], &input[38], &input[39], &input[40], &input[41], &input[42]); //&a_inputs[1] 43 times
+        rv = sscanf(line, "%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f\n", &input[0], &input[1], &input[2], &input[3], &input[4], &input[5], &input[6], &input[7], &input[8], &input[9], &input[10], &input[11], &input[12], &input[13], &input[14], &input[15], &input[16], &input[17], &input[18], &input[19], &input[20], &input[21], &input[22], &input[23], &input[24], &input[25], &input[26], &input[27], &input[28], &input[29], &input[30], &input[31], &input[32], &input[33], &input[34], &input[35], &input[36], &input[37], &input[38], &input[39], &input[40], &input[41], &input[42]); //&a_inputs[1] 43 times
 
         calc_out = fann_run(ann, input);
 
@@ -270,16 +291,16 @@ int global_neural_network(const char* ifile_name)
         switch(activity_type)
         {
             case 0:
-                ann_1(input);
+                ann_1(input, user_name);
                 break;
             case 1:
-                ann_2(input);
+                ann_2(input, user_name);
                 break;
             case 2:
-                ann_3(input);
+                ann_3(input, user_name);
                 break;
             case 3:
-                ann_4(input);
+                ann_4(input, user_name);
                 break;
             case 4:
                 printf("LEFT TURN\n");

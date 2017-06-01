@@ -1,0 +1,1 @@
+void create_training_files(const char user_name[]);

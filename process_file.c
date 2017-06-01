@@ -22,6 +22,7 @@
 
 #include "ex_find_maxima_rig_zgyro.h" //find_index_maxima_gz
 #include "process_file.h"
+//#include "extract_test2.h"
 #include "neural_nets.h"
 
 #define BUFF_SIZE 1024
@@ -238,7 +239,7 @@ void calculate_correlation_coefficient(float *arr_x, float *arr_y, int n_P, int*
 }
 
 //not_training: 0 - input file is not for training; 1 - input file for training
-void process_file(const char *ifile_name, int not_training, int is_turn)
+void process_file(const char *ifile_name, int not_training, int is_turn, const char user_name[])
 {
     /* Generic variables */
     int i, fd, rv;
@@ -318,7 +319,6 @@ void process_file(const char *ifile_name, int not_training, int is_turn)
         if (is_turn) {
             rv = sscanf(line, "%lf,%lf,%f,%f,%f,%f,%f,%f,%d\n", &t[i], &ta[i],
                         &x[i], &y[i], &z[i], &gx[i], &gy[i], &gz[i], &temp);
-            printf("m! %lf,%lf,%f,%f,%f,%f,%f,%f\n", t[i], ta[i], x[i], y[i], z[i], gx[i], gy[i], gz[i]);
         } else
             rv = sscanf(line, "%lf,%lf,%f,%f,%f,%f,%f,%f\n", &t[i], &ta[i],
                         &x[i], &y[i], &z[i], &gx[i], &gy[i], &gz[i]);
@@ -540,7 +540,6 @@ void process_file(const char *ifile_name, int not_training, int is_turn)
 
     snprintf(test_file, BUFF_SIZE, result);
     //snprintf(test_file, BUFF_SIZE, "Katya_test_file_%ld.txt", time(NULL));
-    printf("PROCESS_FILE IS WRITING TO %s\n", test_file);
     fp = fopen(test_file, "w");
     if (fp == NULL)
     {
@@ -587,7 +586,7 @@ void process_file(const char *ifile_name, int not_training, int is_turn)
     //performing actions specific to the real-time system:
 
     if(not_training)
-        global_neural_network(test_file);
+        global_neural_network(test_file, user_name);
 
     char delete_command[1024];
 

@@ -29,7 +29,7 @@
  * n_max_gz = # maxima in z gyro data
  *
  * */
-void find_index_maxima_gz(char *ifile_name, int N_SAMPLES, float* gz, double* t, int* maxima_idx, int* n_max_gz)
+void find_index_maxima_gz(const char *ifile_name, int N_SAMPLES, float* gz, double* t, int* maxima_idx, int* n_max_gz)
 {
     FILE *fp;
     char *line = NULL;
@@ -240,7 +240,7 @@ void find_index_maxima_gz(char *ifile_name, int N_SAMPLES, float* gz, double* t,
     //("Attempting to write to file \'%s\'.\n", result);
     fp = fopen(result, "w");
     fd = fileno(fp);
-    flock(fp, LOCK_EX);
+    flock(fd, LOCK_EX);
 
     if (fp == NULL) {
         fprintf(stderr,
@@ -282,6 +282,4 @@ void find_index_maxima_gz(char *ifile_name, int N_SAMPLES, float* gz, double* t,
 //    free(new_maxima);
 //    free(new_maxima_time);
 //    free(new_maxima_idx);
-
-    return(0);
 }
