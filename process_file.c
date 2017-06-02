@@ -594,7 +594,7 @@ void process_file(const char *ifile_name, int not_training, int is_turn, const c
          *
          * If the file contains turn data, only save strides corresponding to turns
      * */
-        if((is_turn && is_turn_stride[i]) || (i != 0 && is_turn && is_turn_stride[i-1]) || !is_turn)
+        if((is_turn && is_turn_stride[i]) || !is_turn)
         {
             fprintf(fp,
                     "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
