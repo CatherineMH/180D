@@ -19,4 +19,4 @@ echo ">>>>EXECUTING extract_real_time <<<<"
 EXTRACT_ID=$!
 read -p "Press any key to kill producer/consumer... " -n1 -s
 kill $COLLECT_ID $EXTRACT_ID
-rm data_149*.csv
+rm data_149*.csv data_149*.txt

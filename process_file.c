@@ -269,7 +269,7 @@ void process_file(const char *ifile_name, int not_training, int is_turn, const c
 {
     /* Generic variables */
     int i, fd, rv;
-
+    int activity_type = -1; //activity type returned by ANN prediction
     /*array containing the input features corresponding to each stride in file*/
     //float* input = malloc(sizeof(float) * no_input_features);
     // char *ifile_name, *integration_file_name, *ofile_period_name, *ofile_shifted_period, *normalized_period_max_min, * ofile_as_name, *ofile_ast_name ;
@@ -443,13 +443,13 @@ void process_file(const char *ifile_name, int not_training, int is_turn, const c
                 count_50 += turn_col[j]? 1:0;
                 count_0 += turn_col[j]? 0:1;
             }
-            printf("period start: %f\n", t[index_period_gz[i]]);
+            //printf("period start: %f\n", t[index_period_gz[i]]);
             percent_50 = (float)count_50/((float)count_0+(float)count_50);
-            printf("count 50: %d\n", count_50);
-            printf("count 0: %d\n", count_0);
-            printf("percent turning: %f\n", percent_50);
+            //printf("count 50: %d\n", count_50);
+            //printf("count 0: %d\n", count_0);
+            //printf("percent turning: %f\n", percent_50);
             is_turn_stride[i] = (percent_50 > 0.5) ? 1:0;
-            printf("is_turn_stride: %d\n", is_turn_stride[i]);
+            //printf("is_turn_stride: %d\n", is_turn_stride[i]);
         }
     }
 
@@ -658,7 +658,9 @@ void process_file(const char *ifile_name, int not_training, int is_turn, const c
     //performing actions specific to the real-time system:
 
     if(not_training)
+    {
         global_neural_network(test_file, user_name);
+    }
 
     char delete_command[1024];
 

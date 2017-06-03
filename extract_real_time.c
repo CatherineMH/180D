@@ -45,7 +45,6 @@ int main(int argc, char * argv[])
 {
     char user_name[30];
     strcpy(user_name, argv[1]);
-    
     FILE *fp;
     //int fd;
 

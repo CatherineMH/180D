@@ -32,6 +32,22 @@
 #define BUFF_SIZE 1024
 #define NO_FEATURES 43
 
+
+#define SLOW_WALK 1
+#define MED_WALK 2
+#define FAST_WALK 3
+#define JUMP_SHORT 4
+#define JUMP_MED 5
+#define JUMP_HIGH 6
+#define UP_S 7
+#define UP_M 9
+#define UP_F 11
+#define DOWN_S 8
+#define DOWN_M 10
+#define DOWN_F 12
+#define T_RIGHT 13
+#define T_LEFT 14
+
 /*
  * SPEED DETECTION NEURAL NETWORKS FOR EACH OF THE DIFFERENT MOTION TYPES:
  * ann_1 - walking
@@ -75,13 +91,13 @@ int ann_1(float* input, const char user_name[])
     {
         case 0:
             printf("SLOW WALK\n");
-            return 0;
+            return SLOW_WALK;
         case 1:
             printf("MEDIUM WALK\n");
-            return 1;
+            return MED_WALK;
         case 2:
             printf("FAST WALK\n");
-            return 2;
+            return FAST_WALK;
         default:
             printf("Error!");
     }
@@ -125,13 +141,13 @@ int ann_2(float* input, const char user_name[])
     {
         case 0:
             printf("SLOW UPSTAIRS\n");
-            return 0;
+            return UP_S;
         case 1:
             printf("MEDIUM UPSTAIRS\n");
-            return 1;
+            return UP_M;
         case 2:
             printf("FAST UPSTAIRS\n");
-            return 2;
+            return UP_F;
         default:
             printf("Error!");
     }
@@ -171,13 +187,13 @@ int ann_3(float* input, const char user_name[])
     {
         case 0:
             printf("SLOW DOWNSTAIRS\n");
-            return 0;
+            return DOWN_S;
         case 1:
             printf("MEDIUM DOWNSTAIRS\n");
-            return 1;
+            return DOWN_M;
         case 2:
             printf("FAST DOWNSTAIRS\n");
-            return 2;
+            return DOWN_F;
         default:
             printf("Error!");
     }
@@ -217,13 +233,13 @@ int ann_4(float* input, const char user_name[])
     {
         case 0:
             printf("SHORT JUMP\n");
-            return 0;
+            return JUMP_SHORT;
         case 1:
             printf("MEDIUM JUMP\n");
-            return 1;
+            return JUMP_MED;
         case 2:
             printf("HIGH JUMP\n");
-            return 2;
+            return JUMP_HIGH;
         default:
             printf("Error!");
     }
@@ -235,10 +251,22 @@ int ann_4(float* input, const char user_name[])
 int global_neural_network(const char* ifile_name, const char user_name[]) //changed
 {
     int i, activity_type,rv,fd;
+    int return_val = -1;
     float max;
     fann_type *calc_out;
     fann_type input[43]; //43
     struct fann *ann;
+
+    FILE *f_out;
+    f_out = fopen("ANN_output.csv", "a");
+    if (f_out == NULL)
+    {
+        fprintf(stderr,
+                "Failed to write to file \'%s\'.\n",
+                "ANN_output.csv"
+        );
+        exit(EXIT_FAILURE);
+    }
 
     FILE *fp;
     char *line = NULL;
@@ -291,28 +319,31 @@ int global_neural_network(const char* ifile_name, const char user_name[]) //chan
         switch(activity_type)
         {
             case 0:
-                ann_1(input, user_name);
+                return_val = ann_1(input, user_name);
                 break;
             case 1:
-                ann_2(input, user_name);
+                return_val = ann_2(input, user_name);
                 break;
             case 2:
-                ann_3(input, user_name);
+                return_val = ann_3(input, user_name);
                 break;
             case 3:
-                ann_4(input, user_name);
+                return_val = ann_4(input, user_name);
                 break;
             case 4:
-                printf("LEFT TURN\n");
+                return_val = T_LEFT; printf("LEFT TURN\n");
                 break;
             case 5:
-                printf("RIGHT TURN\n");
+                return_val = T_RIGHT; printf("RIGHT TURN\n");
                 break;
             default:
                 printf("Error!");
         }
         sleep(1); // might need to reduce
+
+        fprintf(f_out, "%d\n", return_val);
     }
     fann_destroy(ann);
+    fclose(f_out);
     return activity_type;
 }

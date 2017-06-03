@@ -102,8 +102,8 @@ void do_testing(const char user_name[]) {
 }
 
 void do_all(const char user_name[]) {
-    printf("COLLECT_USER_DATA\n");
-	collect_user_data(user_name);
+    //printf("COLLECT_USER_DATA\n");
+	//collect_user_data(user_name);
     printf("CREATE_TRAINING_FILES\n");
 	create_training_files(user_name);
     printf("CREATE_ANN\n");
