@@ -2,7 +2,7 @@
  *
  * Main file for real-time
  * feature extraction and motion detection
- *
+ * gcc -o extract_real_time extract_real_time.c process_file.c ex_find_maxima_rig_zgyro.c Moving_Avg_Filter.c extract_test2.c  -lmraa -lm -lfann
  *
  * */
 
@@ -41,8 +41,11 @@ void do_when_interrupted(int sig)
     }
 }
 
-int main()
+int main(int argc, char * argv[])
 {
+    char user_name[30];
+    strcpy(user_name, argv[1]);
+    
     FILE *fp;
     //int fd;
 
@@ -97,7 +100,7 @@ int main()
 
             //Extract features from the first file
             //printf("Processing file %s\n", ifile_name);
-            process_file(ifile_name, 1); // return the features
+            process_file(ifile_name, 1, 0, user_name); // return the features
             //system("clear");
             //delete processed file
             //printf("Deleting file %s\n", ifile_name);
