@@ -250,6 +250,7 @@ int ann_4(float* input, const char user_name[])
 
 int global_neural_network(const char* ifile_name, const char user_name[]) //changed
 {
+    int expected_val = T_RIGHT; //for slow walk training
     int i, activity_type,rv,fd;
     int return_val = -1;
     float max;
@@ -337,11 +338,17 @@ int global_neural_network(const char* ifile_name, const char user_name[]) //chan
                 return_val = T_RIGHT; printf("RIGHT TURN\n");
                 break;
             default:
-                printf("Error!");
+            {
+                printf("Undefined Motion :(\n");
+                printf("PREDICTED-%d (%f, %f, %f, %f, %f, %f)\n", activity_type,
+                        calc_out[0], calc_out[1], calc_out[2], calc_out[3], calc_out[4], calc_out[5]);
+
+            }
+
         }
         sleep(1); // might need to reduce
 
-        fprintf(f_out, "%d\n", return_val);
+        fprintf(f_out, "%d, %d\n", return_val, expected_val);
     }
     fann_destroy(ann);
     fclose(f_out);
