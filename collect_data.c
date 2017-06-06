@@ -1,3 +1,4 @@
+//gcc -o collect_data collect_data.c LSM9DS0.c -lmraa -lm
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -68,7 +69,7 @@ int main()
     time_t timestamp_sec; /* timestamp in seconds */
     time(&timestamp_sec);  /* get current time */
 
-    int collection_duration = 5; //seconds of data collection. Human activity at ~15Hz = 4 seconds/activity
+    int collection_duration = 7; //seconds of data collection. Human activity at ~15Hz = 4 seconds/activity
     collection_duration -=1; //to account for rounding that takes place with integer times
     //ex) if we want under 2 seconds of data collection, the collection duration should be set to 1
     time_t start_time_sec; /* loop start timestamp in seconds */
