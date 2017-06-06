@@ -42,20 +42,20 @@
 #define T3 2
 #define T4 4
 
-#define T_WALK_SLOW 5
-#define T_WALK_MED 5
-#define T_WALK_FAST 5
-#define T_JUMP_SHORT 5
-#define T_JUMP_MED 5
-#define T_JUMP_HIGH 5
-#define T_UP_S 5
-#define T_UP_M 5
+#define T_WALK_SLOW 50
+#define T_WALK_MED 35
+#define T_WALK_FAST 30
+#define T_JUMP_SHORT 20
+#define T_JUMP_MED 20
+#define T_JUMP_HIGH 15
+#define T_UP_S 13
+#define T_UP_M 8
 #define T_UP_F 5
-#define T_DOWN_S 5
-#define T_DOWN_M 5
+#define T_DOWN_S 13
+#define T_DOWN_M 8
 #define T_DOWN_F 5
-#define T_RIGHT 5
-#define T_LEFT 5
+#define T_RIGHT 50
+#define T_LEFT 50
 
 sig_atomic_t volatile run_flag = 1;
 

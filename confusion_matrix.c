@@ -66,7 +66,7 @@ int main()
 
     //record accuracy for each motion:
     char motion_type[N_MOTIONS][30] = {"Slow Walk", "Med Walk", "Fast Walk",
-    "Short Jump", "Med Jump", "High Jump", "Up Slow", "Down Slow", "Up Med", "Down Med", "Down Fast",
+    "Short Jump", "Med Jump", "High Jump", "Up Slow", "Down Slow", "Up Med", "Down Med", "Up Fast", "Down Fast",
     "Right Turn", "Left Turn"};
     float num_samples[N_MOTIONS]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     float num_correct[N_MOTIONS] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -109,9 +109,9 @@ int main()
             if(i==0 && j==0)
                 fprintf(fp, ",");
             else if(i==0)
-                fprintf(fp, "P_%d,",j);
+                fprintf(fp, "P_%s,",motion_type[j-1]);
             else if(j==0)
-                fprintf(fp, "A_%d,",i);
+                fprintf(fp, "A_%s,",motion_type[i-1]);
             else
                 fprintf(fp, "%d,", confusion_mat[j-1][i-1]);
 
@@ -132,7 +132,7 @@ int main()
     for(i = 0; i < N_MOTIONS; i++)
     {
         fprintf(fp, "%s,", motion_type[i]);
-        fprintf(fp, "%1f,\n", accuracy);
+        fprintf(fp, "%f,\n", accuracy[i]);
     }
     fclose(fp);
     free(predicted_motion);

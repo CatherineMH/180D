@@ -250,7 +250,7 @@ int ann_4(float* input, const char user_name[])
 
 int global_neural_network(const char* ifile_name, const char user_name[]) //changed
 {
-    int expected_val = T_RIGHT; //for slow walk training
+    int expected_val = JUMP_MED; //for slow walk training
     int i, activity_type,rv,fd;
     int return_val = -1;
     float max;

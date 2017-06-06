@@ -12,16 +12,20 @@ void ANN_train(const char NAME[], const unsigned int num_output, const char ann_
 {
     const unsigned int num_input = NO_INPUTS; //43 features
     const unsigned int num_layers = 3;
-    const unsigned int num_neurons_hidden = 9;
+    const unsigned int num_neurons_hidden = 12;
     const float desired_error = (const float) 0.0001;
     const unsigned int max_epochs = 5000;
     const unsigned int epochs_between_reports = 100;
+
+    fann_type steepness = 0.9; //changeable
 
     struct fann *ann = fann_create_standard(num_layers, num_input,
         num_neurons_hidden, num_output);
 
     fann_set_activation_function_hidden(ann, FANN_SIGMOID_SYMMETRIC);
     fann_set_activation_function_output(ann, FANN_SIGMOID_SYMMETRIC);
+
+    fann_set_activation_steepness(ann, steepness, num_layers, num_neurons_hidden); //activation steepness
 
     //construct the training file name:
     char train_file[100];   // array to hold the result.
