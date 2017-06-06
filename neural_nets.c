@@ -250,7 +250,7 @@ int ann_4(float* input, const char user_name[])
 
 int global_neural_network(const char* ifile_name, const char user_name[]) //changed
 {
-    int expected_val = JUMP_MED; //for slow walk training
+    int expected_val = T_RIGHT; //for slow walk training
     int i, activity_type,rv,fd;
     int return_val = -1;
     float max;
@@ -359,7 +359,10 @@ int global_neural_network(const char* ifile_name, const char user_name[]) //chan
         }
         sleep(1); // might need to reduce
 
-        fprintf(f_out, "%d, %d\n", return_val, expected_val);
+        time_t timestamp_sec;
+        //output the ANN predicted motion, the actual motion, and a timestamp (in seconds) to file:
+        //fprintf(f_out, "%d, %d\n", return_val, expected_val);
+        fprintf(f_out, "%d, %d, %d\n", return_val, expected_val, time(&timestamp_sec));
     }
     fann_destroy(ann);
     fclose(f_out);
