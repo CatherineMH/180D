@@ -12,7 +12,7 @@ void ANN_train(const char NAME[], const unsigned int num_output, const char ann_
 {
     const unsigned int num_input = NO_INPUTS; //43 features
     const unsigned int num_layers = 3;
-    const unsigned int num_neurons_hidden = 12;
+    const unsigned int num_neurons_hidden = 11;
     const float desired_error = (const float) 0.0001;
     const unsigned int max_epochs = 5000;
     const unsigned int epochs_between_reports = 100;
