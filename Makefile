@@ -1,6 +1,6 @@
 CC=gcc
 LDFLAGS=-lmraa -lfann
-CFLAGS=-Wall
+CFLAGS=-w
 SOURCES= extract_real_time.c collect_data.c train_ANN_real_time.c
 EXECUTABLES=$(SOURCES:.c=)
 

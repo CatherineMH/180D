@@ -58,9 +58,11 @@ int main()
     int* actual_motion = (int *) malloc(SIZE_INT * N_SAMPLES);
     rewind(fp);
 
+    double* junk;
+    //get data and discard timestamp:
     while ((read = getline(&line, &len, fp)) != -1)
     {
-        rv = sscanf(line, "%d,%d\n", &predicted_motion[i], &actual_motion[i]);
+        rv = sscanf(line, "%d,%d,%d\n", &predicted_motion[i], &actual_motion[i], &junk);
         i++;
     }
 

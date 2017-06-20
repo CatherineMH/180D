@@ -42,20 +42,20 @@
 #define T3 2
 #define T4 4
 
-#define T_WALK_SLOW 20
-#define T_WALK_MED 15
-#define T_WALK_FAST 20
-#define T_JUMP_SHORT 8
-#define T_JUMP_MED 8
-#define T_JUMP_HIGH 8
-#define T_UP_S 15
-#define T_UP_M 10
-#define T_UP_F 8
-#define T_DOWN_S 15
-#define T_DOWN_M 10
-#define T_DOWN_F 8
-#define T_RIGHT 20
-#define T_LEFT 20
+#define T_WALK_SLOW 50
+#define T_WALK_MED 35
+#define T_WALK_FAST 30
+#define T_JUMP_SHORT 20
+#define T_JUMP_MED 20
+#define T_JUMP_HIGH 15
+#define T_UP_S 13
+#define T_UP_M 8
+#define T_UP_F 5
+#define T_DOWN_S 13
+#define T_DOWN_M 8
+#define T_DOWN_F 5
+#define T_RIGHT 50
+#define T_LEFT 50
 
 sig_atomic_t volatile run_flag = 1;
 
@@ -355,7 +355,7 @@ void collect_user_data(const char USERNAME[]){
 
 	printf("Hello, Let's train neural net with a set of activities...\n");
 
-	for (Activity = 13; Activity < 15; Activity++)
+	for (Activity = 1; Activity < 15; Activity++)
     {
         answer = 'n'; //NB! reset answer
 		switch (Activity) {
